@@ -21,9 +21,10 @@ public class Client extends JFrame {
         in = new DataInputStream(socket.getInputStream());
         setSize(300, 300);
         JPanel panel = new JPanel(new GridLayout(2, 1));
-        JButton send = new JButton("SEND");
+        JButton sendButt = new JButton("SEND");
+//        JButton getButt = new JButton("GET");
         JTextField text = new JTextField();
-        send.addActionListener(a -> {
+        sendButt.addActionListener(a -> {
             String[] cmd = text.getText().split(" ");
             if (cmd[0].equals("upload")) {
                 sendFile(cmd[1]);
@@ -32,8 +33,17 @@ public class Client extends JFrame {
                 getFile(cmd[1]);
             }
         });
+//        getButt.addActionListener(a -> {
+//            String[] cmd = text.getText().split(" ");
+//            if (cmd[0].equals("upload")) {
+//                sendFile(cmd[1]);
+//            }
+//            if (cmd[0].equals("download")) {
+//                getFile(cmd[1]);
+//            }
+//        });
         panel.add(text);
-        panel.add(send);
+        panel.add(sendButt);
         add(panel);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -49,6 +59,32 @@ public class Client extends JFrame {
 
     private void getFile(String fileName) {
         // TODO: 27.10.2020
+        try {
+            out.writeUTF("download");
+            out.writeUTF(fileName);
+            if (in.readUTF().equals("fileNotFound")) {
+                System.out.println("File " + fileName + " not found!");
+            } else {
+                System.out.println("File " + fileName + " begin transfer");
+                long size = in.readLong();
+                File file = new File("client/" + fileName);
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] buffer = new byte[256];
+                for (int i = 0; i < (size + 255) / 256; i++) {
+                    int read = in.read(buffer);
+                    fos.write(buffer, 0, read);
+                }
+                fos.close();
+                out.writeUTF("OK");
+                System.out.println("File " + fileName + " transfer complete");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void sendFile(String filename) {
