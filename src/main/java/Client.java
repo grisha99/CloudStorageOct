@@ -4,6 +4,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
+
 /**
  * Client command: upload fileName | download fileName
  *
@@ -30,6 +31,20 @@ public class Client extends JFrame {
             }
             if (cmd[0].equals("download")) {
                 getFile(cmd[1]);
+            }
+            try {
+                out.write(text.getText().getBytes());
+                new Thread(() ->
+                {
+                    try {
+                        System.out.println(new String(in.readAllBytes()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                ).start();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
         panel.add(text);
