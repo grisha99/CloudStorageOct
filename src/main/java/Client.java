@@ -63,7 +63,7 @@ public class Client extends JFrame {
     }
 
     private void getFile(String fileName) {
-        // TODO: 27.10.2020
+
     }
 
     private void sendFile(String filename) {
